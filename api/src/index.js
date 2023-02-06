@@ -1,5 +1,5 @@
 import { ApolloServer } from "@apollo/server";
-import { MongoClient, ServerApiVersion } from "mongodb";
+import { MongoClient, ServerApiVersion,ObjectId } from "mongodb";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -8,6 +8,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const { DB_URI, DB_NAME, JWT_SECRET } = process.env;
+
+let token;
 
 const getToken = (user) =>
   jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "30 days" });
@@ -21,7 +23,7 @@ const getUserFromToken = async (token, db) => {
   if (!tokenData?.id) {
     return null;
   }
-  return await db.collection("Users").findOne({ _id: ObjectID(tokenData.id) });
+  return await db.collection("Users").findOne({ _id: ObjectId(tokenData.id) });
 };
 
 const typeDefs = `#graphql
@@ -94,7 +96,7 @@ const resolvers = {
         throw new Error("Authentication Error. Please sign in");
       }
 
-      return await db.collection("TaskList").findOne({ _id: ObjectID(id) });
+      return await db.collection("TaskList").findOne({ _id: ObjectId(id) });
     },
   },
   Mutation: {
@@ -114,24 +116,28 @@ const resolvers = {
       // save to database
       const result = await db.collection("Users").insertOne(newUser);
       const user = result.ops[0];
+      token = getToken(user)
+      console.log('signup token',token);
       return {
         user,
-        token: getToken(user),
+        token: token
       };
     },
-
+    
     signIn: async (_, { input }, { db }) => {
       const user = await db.collection("Users").findOne({ email: input.email });
+      console.log('user',user);
       const isPasswordCorrect =
-        user && bcrypt.compareSync(input.password, user.password);
-
+      user && bcrypt.compareSync(input.password, user.password);
+      console.log(user,isPasswordCorrect);
       if (!user || !isPasswordCorrect) {
         throw new Error("Invalid credentials!");
       }
-
+      token = getToken(user)
+      console.log('signin token',token);
       return {
         user,
-        token: getToken(user),
+        token: token
       };
     },
 
@@ -156,7 +162,7 @@ const resolvers = {
 
       const result = await db.collection("TaskList").updateOne(
         {
-          _id: ObjectID(id),
+          _id: ObjectId(id),
         },
         {
           $set: {
@@ -165,7 +171,7 @@ const resolvers = {
         }
       );
 
-      return await db.collection("TaskList").findOne({ _id: ObjectID(id) });
+      return await db.collection("TaskList").findOne({ _id: ObjectId(id) });
     },
 
     addUserToTaskList: async (_, { taskListId, userId }, { db, user }) => {
@@ -175,7 +181,7 @@ const resolvers = {
 
       const taskList = await db
         .collection("TaskList")
-        .findOne({ _id: ObjectID(taskListId) });
+        .findOne({ _id: ObjectId(taskListId) });
       if (!taskList) {
         return null;
       }
@@ -186,15 +192,15 @@ const resolvers = {
       }
       await db.collection("TaskList").updateOne(
         {
-          _id: ObjectID(taskListId),
+          _id: ObjectId(taskListId),
         },
         {
           $push: {
-            userIds: ObjectID(userId),
+            userIds: ObjectId(userId),
           },
         }
       );
-      taskList.userIds.push(ObjectID(userId));
+      taskList.userIds.push(ObjectId(userId));
       return taskList;
     },
 
@@ -204,7 +210,7 @@ const resolvers = {
       }
 
       // TODO only collaborators of this task list should be able to delete
-      await db.collection("TaskList").removeOne({ _id: ObjectID(id) });
+      await db.collection("TaskList").removeOne({ _id: ObjectId(id) });
 
       return true;
     },
@@ -216,7 +222,7 @@ const resolvers = {
       }
       const newToDo = {
         content,
-        taskListId: ObjectID(taskListId),
+        taskListId: ObjectId(taskListId),
         isCompleted: false,
       };
       const result = await db.collection("ToDo").insert(newToDo);
@@ -230,14 +236,14 @@ const resolvers = {
 
       const result = await db.collection("ToDo").updateOne(
         {
-          _id: ObjectID(data.id),
+          _id: ObjectId(data.id),
         },
         {
           $set: data,
         }
       );
 
-      return await db.collection("ToDo").findOne({ _id: ObjectID(data.id) });
+      return await db.collection("ToDo").findOne({ _id: ObjectId(data.id) });
     },
 
     deleteToDo: async (_, { id }, { db, user }) => {
@@ -246,7 +252,7 @@ const resolvers = {
       }
 
       // TODO only collaborators of this task list should be able to delete
-      await db.collection("ToDo").removeOne({ _id: ObjectID(id) });
+      await db.collection("ToDo").removeOne({ _id: ObjectId(id) });
 
       return true;
     },
@@ -261,7 +267,7 @@ const resolvers = {
     progress: async ({ _id }, _, { db }) => {
       const todos = await db
         .collection("ToDo")
-        .find({ taskListId: ObjectID(_id) })
+        .find({ taskListId: ObjectId(_id) })
         .toArray();
       const completed = todos.filter((todo) => todo.isCompleted);
 
@@ -278,14 +284,14 @@ const resolvers = {
     todos: async ({ _id }, _, { db }) =>
       await db
         .collection("ToDo")
-        .find({ taskListId: ObjectID(_id) })
+        .find({ taskListId: ObjectId(_id) })
         .toArray(),
   },
 
   ToDo: {
     id: ({ _id, id }) => _id || id,
     taskList: async ({ taskListId }, _, { db }) =>
-      await db.collection("TaskList").findOne({ _id: ObjectID(taskListId) }),
+      await db.collection("TaskList").findOne({ _id: ObjectId(taskListId) }),
   },
 };
 
@@ -310,9 +316,11 @@ const start = async () => {
   //  1. creates an Express app
   //  2. installs your ApolloServer instance as middleware
   //  3. prepares your app to handle incoming requests
+  console.log('backend token', token);
   const url = await startStandaloneServer(server, {
     listen: { port: 4000 },
     context: async ({ req }) => {
+      
       const user = await getUserFromToken(req.headers.authorization, db);
       return {
         db,
