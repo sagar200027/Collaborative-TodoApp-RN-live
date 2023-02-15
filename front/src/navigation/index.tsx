@@ -37,7 +37,7 @@ function RootNavigator() {
         name="Splash"
         component={SplashScreen}
         options={{
-          headerShown: false,
+          headerShown: true,
         }}
       />
 
@@ -46,6 +46,7 @@ function RootNavigator() {
         component={SignInScreen}
         options={{
           title: 'Sign In',
+          // headerShown:false
         }}
       />
 
@@ -57,7 +58,9 @@ function RootNavigator() {
         }}
       />
 
-      <Stack.Screen name="Home" component={ProjectsScreen} />
+      <Stack.Screen name="Home" component={ProjectsScreen} options={{
+        headerShown:false
+      }} />
       <Stack.Screen name="ToDoScreen" component={ToDoScreen} />
     </Stack.Navigator>
   );

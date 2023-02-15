@@ -26,7 +26,7 @@ const SignInScreen = () => {
   const [signIn, { data, error, loading }] = useMutation(SIGN_IN_MUTATION, {
     variables: { email: email, password: password },
   });
-
+  
   useEffect(() => {
     if (error) {
       console.log("error", error);
@@ -57,12 +57,13 @@ const SignInScreen = () => {
         value={email}
         onChangeText={setEmail}
         style={{
-          color: "grey",
+          color: "black",
           fontSize: 18,
           width: "100%",
+          backgroundColor:"grey",
           marginVertical: 25,
         }}
-      />
+        />
 
       <TextInput
         placeholder="password"
@@ -70,9 +71,10 @@ const SignInScreen = () => {
         onChangeText={setPassword}
         secureTextEntry
         style={{
-          color: "grey",
+          color: "black",
           fontSize: 18,
           width: "100%",
+          backgroundColor:"grey",
           marginVertical: 25,
         }}
       />
