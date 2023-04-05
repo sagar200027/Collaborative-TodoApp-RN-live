@@ -129,7 +129,7 @@ const resolvers = {
     },
 
     signIn: async (_, { input }, { db }) => {
-      console.log('working');
+      console.log("working");
       const user = await db.collection("Users").findOne({ email: input.email });
       const isPasswordCorrect =
         user && bcrypt.compareSync(input.password, user.password);
@@ -230,8 +230,17 @@ const resolvers = {
         isCompleted: false,
       };
       const result = await db.collection("ToDo").insert(newToDo);
-      console.log('create todo result',result);
-      return result.ops[0];
+      let todo = await db
+        .collection("ToDo")
+        .findOne({ _id: result.insertedIds[0] });
+      console.log("create todo result", todo);
+      const newTodo = {
+        id: todo._id,
+        content: todo.content,
+        taskListId: todo.taskListId,
+        isCompleted: false,
+      };
+      return newTodo;
     },
 
     updateToDo: async (_, data, { db, user }) => {

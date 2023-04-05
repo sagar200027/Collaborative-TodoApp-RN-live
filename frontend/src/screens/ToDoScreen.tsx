@@ -94,12 +94,19 @@ export default function ToDoScreen() {
     // setTodos(newTodos);
   };
 
-  const addTodo = () => {};
+  const addTodo = () => {
+    createTodo({
+      variables: {
+        content: '',
+        taskListId: id,
+      },
+    });
+  };
 
   if (!project) {
     return null;
   }
-
+  console.log('todos array', project.todos);
 
   return (
     <KeyboardAvoidingView
