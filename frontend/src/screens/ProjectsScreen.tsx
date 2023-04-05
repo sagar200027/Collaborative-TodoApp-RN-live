@@ -23,7 +23,7 @@ export default function ProjectsScreen() {
 
   useEffect(() => {
     if (error) {
-      console.log(data,error,loading);
+      console.log('projects screen',data,error,loading);
 
       Alert.alert("Error fetching projects", error.message);
     }
