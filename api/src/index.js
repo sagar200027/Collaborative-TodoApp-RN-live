@@ -214,7 +214,7 @@ const resolvers = {
       }
 
       // TODO only collaborators of this task list should be able to delete
-      await db.collection("TaskList").removeOne({ _id: ObjectId(id) });
+      await db.collection("TaskList").deleteOne({ _id: ObjectId(id) });
 
       return true;
     },
@@ -230,6 +230,7 @@ const resolvers = {
         isCompleted: false,
       };
       const result = await db.collection("ToDo").insert(newToDo);
+      console.log('create todo result',result);
       return result.ops[0];
     },
 
@@ -256,7 +257,7 @@ const resolvers = {
       }
 
       // TODO only collaborators of this task list should be able to delete
-      await db.collection("ToDo").removeOne({ _id: ObjectId(id) });
+      await db.collection("ToDo").deleteOne({ _id: ObjectId(id) });
 
       return true;
     },

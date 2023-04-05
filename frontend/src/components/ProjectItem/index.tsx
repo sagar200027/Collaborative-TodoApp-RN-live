@@ -23,7 +23,7 @@ const ProjectItem = ({project}: ProjectItemProps) => {
   return (
     <Pressable onPress={onPress} style={styles.root}>
       <Icon name="list-ul" size={20} color="#000" style={{marginRight:10}} />
-      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+      <View style={{width:'100%'}}>
         <Text style={styles.title}>{project.title}</Text>
         <Text style={styles.time}>{project.createdAt}</Text>
       </View>
@@ -59,8 +59,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     marginRight: 5,
+    color:'red'
   },
   time: {
     color: 'darkgrey',
+    textAlign:'right',
+    width:'100%',
   },
 });

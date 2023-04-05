@@ -1,44 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { 
+import React, {useState, useEffect} from 'react';
+import {
   StyleSheet,
-   FlatList, 
-   TextInput, 
-   KeyboardAvoidingView,
-   Platform,
-   Alert
+  FlatList,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+  Pressable,
 } from 'react-native';
-import { useQuery, useMutation, gql } from '@apollo/client';
-import { useRoute } from '@react-navigation/native';
-
+import {useQuery, useMutation, gql} from '@apollo/client';
+import {useRoute} from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Ionicons';
 import ToDoItem from '../components/ToDoItem';
 
-import { Text, View } from '../components/Themed';
+import {Text, View} from '../components/Themed';
 
 const GET_PROJECT = gql`
-query getTaslist($id:ID!) {
-  getTaskList(id:$id) {
-    id
-    title
-    createdAt
-    todos {
+  query getTaslist($id: ID!) {
+    getTaskList(id: $id) {
       id
-      content
-      isCompleted
-    }
-  }
-}
-`
-
-const CREATE_TODO = gql`
-mutation createToDo($content:String!, $taskListId: ID!) {
-  createToDo(content: $content, taskListId: $taskListId) {
-    id
-		content
-    isCompleted
-    
-    taskList {
-      id
-      progress
+      title
+      createdAt
       todos {
         id
         content
@@ -46,30 +28,45 @@ mutation createToDo($content:String!, $taskListId: ID!) {
       }
     }
   }
-}
-`
+`;
 
-let id = '4'
+const CREATE_TODO = gql`
+  mutation createToDo($content: String!, $taskListId: ID!) {
+    createToDo(content: $content, taskListId: $taskListId) {
+      id
+      content
+      isCompleted
+
+      taskList {
+        id
+        progress
+        todos {
+          id
+          content
+          isCompleted
+        }
+      }
+    }
+  }
+`;
+
+let id = '4';
 
 export default function ToDoScreen() {
-
-  const [project, setProject] = useState(null);
+  const [project, setProject] = useState({todos: []});
   const [title, setTitle] = useState('');
 
   const route = useRoute();
   const id = route.params.id;
 
-  const {
-    data, error, loading
-  } = useQuery(GET_PROJECT, { variables: { id }})
+  const {data, error, loading} = useQuery(GET_PROJECT, {variables: {id}});
 
-  const [
-    createTodo, { data: createTodoData, error: createTodoError }
-  ] = useMutation(CREATE_TODO, { refetchQueries: GET_PROJECT });
+  const [createTodo, {data: createTodoData, error: createTodoError}] =
+    useMutation(CREATE_TODO, {refetchQueries: GET_PROJECT});
 
   useEffect(() => {
     if (error) {
-      console.log(error);
+      // console.log(error);
       Alert.alert('Error fetching project', error.message);
     }
   }, [error]);
@@ -86,8 +83,8 @@ export default function ToDoScreen() {
       variables: {
         content: '',
         taskListId: id,
-      }
-    })
+      },
+    });
     // const newTodos = [...todos];
     // newTodos.splice(atIndex, 0, {
     //   id: id,
@@ -95,36 +92,40 @@ export default function ToDoScreen() {
     //   isCompleted: false
     // })
     // setTodos(newTodos);
-  }
+  };
+
+  const addTodo = () => {};
 
   if (!project) {
     return null;
   }
 
+
   return (
-    <KeyboardAvoidingView       
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 130 : 0}
-      style={{ flex: 1 }}
-    >
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 130 : 0}
+      style={{flex: 1}}>
       <View style={styles.container}>
         <TextInput
           value={title}
           onChangeText={setTitle}
           placeholder={'Title'}
-          style={styles.title} 
+          style={styles.title}
         />
 
         <FlatList
-          data={project.todos}
-          renderItem={({ item, index }) => (
-            <ToDoItem 
-              todo={item}
-              onSubmit={() => createNewItem(index + 1)} 
-            />
+          data={project?.todos ?? []}
+          renderItem={({item, index}) => (
+            <ToDoItem todo={item} onSubmit={() => createNewItem(index + 1)} />
           )}
-          style={{ width: '100%' }}
+          style={{width: '100%'}}
         />
+        <Pressable
+          onPress={addTodo}
+          style={{backgroundColor: 'green', padding: 10, borderRadius: 25}}>
+          <Icon name="add" size={20} color={'#fff'} />
+        </Pressable>
       </View>
     </KeyboardAvoidingView>
   );
@@ -139,7 +140,8 @@ const styles = StyleSheet.create({
   title: {
     width: '100%',
     fontSize: 20,
-    color: 'white',
+    // color: 'white',
+    color: 'green',
     fontWeight: 'bold',
     marginBottom: 12,
   },
