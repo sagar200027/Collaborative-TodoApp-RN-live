@@ -4,8 +4,7 @@ import ProjectItem from '../components/ProjectItem';
 import {Text, View} from '../components/Themed';
 import {useQuery, gql, useMutation} from '@apollo/client';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { ADD_PROJECT, DELETE_PROJECT, MY_PROJECTS } from '../apis/ProjectsScreen';
-
+import {ADD_PROJECT, DELETE_PROJECT, MY_PROJECTS} from '../apis/ProjectsScreen';
 
 export default function ProjectsScreen() {
   const [project, setProjects] = useState([]);
@@ -53,6 +52,16 @@ export default function ProjectsScreen() {
 
   return (
     <View style={styles.container}>
+      <View
+        style={{
+          height: 50,
+          justifyContent: 'center',
+          // borderBottomWidth: 1,
+          alignItems: 'center',
+          width:'100%'
+        }}>
+        <Text style={{fontSize: 20, fontWeight: '600'}}>Home</Text>
+      </View>
       <FlatList
         data={project}
         renderItem={({item}) => {

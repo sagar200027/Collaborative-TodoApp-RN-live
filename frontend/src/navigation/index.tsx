@@ -57,8 +57,16 @@ function RootNavigator() {
         }}
       />
 
-      <Stack.Screen name="Home" component={ProjectsScreen} />
-      <Stack.Screen name="ToDoScreen" options={{headerShown:false}} component={ToDoScreen} />
+      <Stack.Screen
+        name="Home"
+        options={{headerShown: false}}
+        component={ProjectsScreen}
+      />
+      <Stack.Screen
+        name="ToDoScreen"
+        options={{headerShown: false}}
+        component={ToDoScreen}
+      />
     </Stack.Navigator>
   );
 }

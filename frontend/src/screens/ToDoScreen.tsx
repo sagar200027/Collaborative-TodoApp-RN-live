@@ -67,6 +67,7 @@ export default function ToDoScreen() {
 
   const route = useRoute();
   const id = route.params.id;
+  const deleteList = route.params.deleteList;
 
   const {data, error, refetch, loading} = useQuery(GET_PROJECT, {
     variables: {id},
@@ -135,7 +136,10 @@ export default function ToDoScreen() {
   }
   console.log('todos array', project.todos);
 
-  const deleteList = () => {};
+  const deleteTaskList = async () => {
+    navigation.goBack();
+    await deleteTaskList();
+  };
 
   const renderItem = ({item, index}: any) => {
     switch (index) {
@@ -150,13 +154,15 @@ export default function ToDoScreen() {
               setDropDown(false);
             }}>
             <View style={styles.centeredView}>
-              <View style={{padding: 10, paddingHorizontal: 20}}>
+              <Pressable
+                onPress={() => deleteTaskList()}
+                style={{padding: 10, paddingHorizontal: 20}}>
                 <Text
                   onPress={deleteList}
                   style={{fontSize: 17, fontWeight: '600', color: 'red'}}>
                   Delete this todo list
                 </Text>
-              </View>
+              </Pressable>
             </View>
           </Modal>
         );

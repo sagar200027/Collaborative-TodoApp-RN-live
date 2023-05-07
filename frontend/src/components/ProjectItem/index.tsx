@@ -7,22 +7,21 @@ import Icon2 from 'react-native-vector-icons/MaterialIcons';
 import {gql, useMutation} from '@apollo/client';
 // import styles from './styles';
 
-
 interface ProjectItemProps {
   project: {
     id: string;
     title: string;
     createdAt: string;
   };
-  deleteList:Function
+  deleteList: Function;
 }
 
-const ProjectItem = ({project,deleteList}: ProjectItemProps) => {
+const ProjectItem = ({project, deleteList}: ProjectItemProps) => {
   const navigation = useNavigation();
   console.log(project);
 
   const onPress = () => {
-    navigation.navigate('ToDoScreen', {id: project.id});
+    navigation.navigate('ToDoScreen', {id: project.id, deleteList: deleteList});
   };
 
   return (
