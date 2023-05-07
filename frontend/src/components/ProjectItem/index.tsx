@@ -22,11 +22,11 @@ const ProjectItem = ({project}: ProjectItemProps) => {
 
   return (
     <Pressable onPress={onPress} style={styles.root}>
-      <Icon name="list-ul" size={20} color="#000" style={{marginRight:10}} />
-      <View style={{width:'100%'}}>
+      <View style={{flexDirection:'row',alignItems:'center'}}>
+        <Icon name="list-ul" size={20} color="#000" style={{marginRight: 10}} />
         <Text style={styles.title}>{project.title}</Text>
-        <Text style={styles.time}>{project.createdAt}</Text>
       </View>
+      <Text style={styles.time}>{project.createdAt}</Text>
     </Pressable>
   );
 };
@@ -41,10 +41,12 @@ const styles = StyleSheet.create({
   },
   root: {
     flexDirection: 'row',
-    borderWidth:1,
-    marginVertical:10,
-    alignItems:'center',
-    width: '100%',
+    borderWidth: 1,
+    marginVertical: 10,
+    justifyContent:'space-between',
+    alignItems: 'center',
+    // width: '100%',
+    borderColor:'green',
     padding: 10,
   },
   iconContainer: {
@@ -59,11 +61,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     marginRight: 5,
-    color:'red'
+    color: 'green',
   },
   time: {
     color: 'darkgrey',
-    textAlign:'right',
-    width:'100%',
+    textAlign: 'right',
   },
 });

@@ -119,7 +119,7 @@ export default function ToDoScreen() {
       case 0: {
         return (
           <Modal
-            animationType="slide"
+            animationType="fade"
             transparent={true}
             visible={dropDown}
             onRequestClose={() => {

@@ -155,8 +155,17 @@ const resolvers = {
         userIds: [user._id],
       };
       const result = await db.collection("TaskList").insert(newTaskList);
-      // console.log('result',result);
-      return result.ops[0];
+      let newTask = await db
+        .collection("TaskList")
+        .findOne({ _id: result.insertedIds[0] });
+      newTask = {
+        id: newTask._id,
+        title: newTask.title,
+        createdAt: newTask.createdAt,
+        userIds: newTask.userIds,
+      };
+      console.log("result", newTask);
+      return newTask;
     },
 
     updateTaskList: async (_, { id, title }, { db, user }) => {
