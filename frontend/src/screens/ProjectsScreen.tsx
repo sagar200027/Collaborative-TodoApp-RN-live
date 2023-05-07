@@ -4,34 +4,8 @@ import ProjectItem from '../components/ProjectItem';
 import {Text, View} from '../components/Themed';
 import {useQuery, gql, useMutation} from '@apollo/client';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { ADD_PROJECT, DELETE_PROJECT, MY_PROJECTS } from '../apis/ProjectsScreen';
 
-const MY_PROJECTS = gql`
-  query myTaskLists {
-    myTaskLists {
-      id
-      title
-      createdAt
-    }
-  }
-`;
-
-const ADD_PROJECT = gql`
-  mutation createTaskList($title: String!) {
-    createTaskList(title: $title) {
-      id
-      title
-      users {
-        id
-      }
-    }
-  }
-`;
-
-const DELETE_PROJECT = gql`
-  mutation createTaskList($id: ID!) {
-    deleteTaskList(id: $id)
-  }
-`;
 
 export default function ProjectsScreen() {
   const [project, setProjects] = useState([]);

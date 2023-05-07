@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {View, TextInput} from 'react-native';
+import {View, TextInput, Pressable} from 'react-native';
 import {useMutation, gql} from '@apollo/client';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import Checkbox from '../Checkbox';
 
@@ -24,27 +25,21 @@ const UPDATE_TODO = gql`
   }
 `;
 
-const DELETE_TODO = gql`
-  mutation deleteToDo($id: ID!) {
-    deleteToDo(id: $id)
-  }
-`;
-
 interface ToDoItemProps {
   todo: {
     id: string;
     content: string;
     isCompleted: boolean;
   };
+  callDeleteItem:Function,
   onSubmit: () => void;
 }
 
-const ToDoItem = ({todo, onSubmit}: ToDoItemProps) => {
+const ToDoItem = ({todo, onSubmit,callDeleteItem}: ToDoItemProps) => {
   const [isChecked, setIsChecked] = useState(false);
   const [content, setContent] = useState('');
 
   const [updateItem] = useMutation(UPDATE_TODO);
-  const [deleteItem] = useMutation(DELETE_TODO);
   const input = useRef(null);
 
   const callUpdateItem = () => {
@@ -57,19 +52,10 @@ const ToDoItem = ({todo, onSubmit}: ToDoItemProps) => {
     });
   };
 
-  const callDeleteItem = () => {
-    deleteItem({
-      variables: {
-        id: todo.id,
-      },
-    });
-  };
-
   useEffect(() => {
     if (!todo) {
       return;
     }
-
     setIsChecked(todo.isCompleted);
     setContent(todo.content);
   }, [todo]);
@@ -91,31 +77,37 @@ const ToDoItem = ({todo, onSubmit}: ToDoItemProps) => {
   return (
     <View
       style={{flexDirection: 'row', alignItems: 'center', marginVertical: 3}}>
-      {/* Checkbox */}
-      <Checkbox
-        isChecked={isChecked}
-        onPress={() => {
-          setIsChecked(!isChecked);
-          callUpdateItem();
-        }}
-      />
+      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <Checkbox
+          isChecked={isChecked}
+          onPress={() => {
+            setIsChecked(!isChecked);
+            callUpdateItem();
+          }}
+        />
 
-      {/* Text Input */}
-      <TextInput
-        ref={input}
-        value={content}
-        onChangeText={setContent}
-        style={{
-          flex: 1,
-          fontSize: 18,
-          marginLeft: 12,
-        }}
-        multiline
-        onEndEditing={callUpdateItem}
-        onSubmitEditing={onSubmit}
-        blurOnSubmit
-        onKeyPress={onKeyPress}
-      />
+        {/* Text Input */}
+        <TextInput
+          ref={input}
+          value={content}
+          onChangeText={setContent}
+          style={{
+            flex: 1,
+            fontSize: 18,
+            marginLeft: 12,
+          }}
+          multiline
+          onEndEditing={callUpdateItem}
+          onSubmitEditing={onSubmit}
+          blurOnSubmit
+          onKeyPress={onKeyPress}
+        />
+      </View>
+      <View style={{}}>
+        <Pressable onPress={() => callDeleteItem()}>
+          <Icon name="delete" size={20} color="red" />
+        </Pressable>
+      </View>
     </View>
   );
 };

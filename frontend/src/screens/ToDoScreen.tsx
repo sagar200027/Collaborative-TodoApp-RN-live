@@ -51,6 +51,12 @@ const CREATE_TODO = gql`
   }
 `;
 
+const DELETE_TODO = gql`
+  mutation deleteToDo($id: ID!) {
+    deleteToDo(id: $id)
+  }
+`;
+
 let id = '4';
 
 export default function ToDoScreen() {
@@ -62,8 +68,10 @@ export default function ToDoScreen() {
   const route = useRoute();
   const id = route.params.id;
 
-  const {data, error, loading} = useQuery(GET_PROJECT, {variables: {id}});
-
+  const {data, error, refetch, loading} = useQuery(GET_PROJECT, {
+    variables: {id},
+  });
+  const [deleteItem] = useMutation(DELETE_TODO);
   const [createTodo, {data: createTodoData, error: createTodoError}] =
     useMutation(CREATE_TODO, {refetchQueries: GET_PROJECT});
 
@@ -103,6 +111,16 @@ export default function ToDoScreen() {
         content: '',
         taskListId: id,
       },
+    });
+  };
+
+  const callDeleteItem = (id: any) => {
+    deleteItem({
+      variables: {
+        id: id,
+      },
+    }).then(() => {
+      refetch();
     });
   };
 
@@ -147,21 +165,23 @@ export default function ToDoScreen() {
               style={styles.title}
             />
 
-            <FlatList
-              data={project?.todos ?? []}
-              renderItem={({item, index}) => (
-                <ToDoItem
-                  todo={item}
-                  onSubmit={() => createNewItem(index + 1)}
-                />
-              )}
-              style={{width: '100%'}}
-            />
-            <Pressable
-              onPress={addTodo}
-              style={{backgroundColor: 'green', padding: 10, borderRadius: 25}}>
-              <Icon name="add" size={20} color={'#fff'} />
-            </Pressable>
+            <View style={{width: '100%', flex: 1}}>
+              <FlatList
+                data={project?.todos ?? []}
+                renderItem={({item, index}) => {
+                  console.log('todo item', item);
+
+                  return (
+                    <ToDoItem
+                      todo={item}
+                      callDeleteItem={() => callDeleteItem(item?.id)}
+                      onSubmit={() => createNewItem(index + 1)}
+                    />
+                  );
+                }}
+                style={{width: '90%'}}
+              />
+            </View>
           </View>
         );
       }
@@ -169,10 +189,7 @@ export default function ToDoScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 130 : 0}
-      style={{flex: 1}}>
+    <View style={{flex: 1}}>
       <View style={styles.header}>
         <Pressable
           onPress={() => navigation.goBack()}
@@ -200,8 +217,22 @@ export default function ToDoScreen() {
         </Pressable>
       </View>
 
-      <FlatList data={[0, 1, 2, 3, 4]} renderItem={renderItem} />
-    </KeyboardAvoidingView>
+      <View style={{paddingHorizontal: 10}}>
+        <FlatList data={[0, 1, 2, 3, 4]} renderItem={renderItem} />
+      </View>
+      <Pressable
+        onPress={addTodo}
+        style={{
+          backgroundColor: 'green',
+          position: 'absolute',
+          padding: 10,
+          right: 30,
+          bottom: 30,
+          borderRadius: 25,
+        }}>
+        <Icon name="add" size={20} color={'#fff'} />
+      </Pressable>
+    </View>
   );
 }
 
@@ -217,7 +248,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    padding: 12,
+    // padding: 12,
   },
   title: {
     width: '100%',
