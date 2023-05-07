@@ -27,6 +27,12 @@ const ADD_PROJECT = gql`
   }
 `;
 
+const DELETE_PROJECT = gql`
+  mutation createTaskList($id: ID!) {
+    deleteTaskList(id: $id)
+  }
+`;
+
 export default function ProjectsScreen() {
   const [project, setProjects] = useState([]);
 
@@ -35,6 +41,7 @@ export default function ProjectsScreen() {
   });
 
   const [createTaskList] = useMutation(ADD_PROJECT);
+  const [deleteTaskList] = useMutation(DELETE_PROJECT);
 
   useEffect(() => {
     if (error) {
@@ -60,11 +67,28 @@ export default function ProjectsScreen() {
     });
   };
 
+  const deleteList = (id: any) => {
+    deleteTaskList({
+      variables: {
+        id: id,
+      },
+    }).then(() => {
+      refetch();
+    });
+  };
+
   return (
     <View style={styles.container}>
       <FlatList
         data={project}
-        renderItem={({item}) => <ProjectItem project={item} />}
+        renderItem={({item}) => {
+          return (
+            <ProjectItem
+              deleteList={() => deleteList(item?.id)}
+              project={item}
+            />
+          );
+        }}
         style={{width: '100%'}}
       />
       <Pressable

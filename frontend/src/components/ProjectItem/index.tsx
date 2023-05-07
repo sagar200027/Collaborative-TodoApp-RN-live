@@ -2,8 +2,11 @@ import React from 'react';
 import {View, Text, Pressable, StyleSheet} from 'react-native';
 // import { MaterialCommunityIcons } from '@expo/vector-icons';
 import {useNavigation} from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon1 from 'react-native-vector-icons/FontAwesome';
+import Icon2 from 'react-native-vector-icons/MaterialIcons';
+import {gql, useMutation} from '@apollo/client';
 // import styles from './styles';
+
 
 interface ProjectItemProps {
   project: {
@@ -11,10 +14,12 @@ interface ProjectItemProps {
     title: string;
     createdAt: string;
   };
+  deleteList:Function
 }
 
-const ProjectItem = ({project}: ProjectItemProps) => {
+const ProjectItem = ({project,deleteList}: ProjectItemProps) => {
   const navigation = useNavigation();
+  console.log(project);
 
   const onPress = () => {
     navigation.navigate('ToDoScreen', {id: project.id});
@@ -22,11 +27,26 @@ const ProjectItem = ({project}: ProjectItemProps) => {
 
   return (
     <Pressable onPress={onPress} style={styles.root}>
-      <View style={{flexDirection:'row',alignItems:'center'}}>
-        <Icon name="list-ul" size={20} color="#000" style={{marginRight: 10}} />
+      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <Icon1
+          name="list-ul"
+          size={20}
+          color="#000"
+          style={{marginRight: 10}}
+        />
         <Text style={styles.title}>{project.title}</Text>
       </View>
-      <Text style={styles.time}>{project.createdAt}</Text>
+      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <Text style={styles.time}>{project.createdAt}</Text>
+        <Pressable onPress={() => deleteList()}>
+          <Icon2
+            name="delete"
+            size={20}
+            color="red"
+            style={{marginRight: 10}}
+          />
+        </Pressable>
+      </View>
     </Pressable>
   );
 };
@@ -43,10 +63,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderWidth: 1,
     marginVertical: 10,
-    justifyContent:'space-between',
+    justifyContent: 'space-between',
     alignItems: 'center',
     // width: '100%',
-    borderColor:'green',
+    borderColor: 'green',
     padding: 10,
   },
   iconContainer: {
