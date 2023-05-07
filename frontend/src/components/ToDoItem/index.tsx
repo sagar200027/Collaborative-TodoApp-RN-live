@@ -31,19 +31,19 @@ interface ToDoItemProps {
     content: string;
     isCompleted: boolean;
   };
-  callDeleteItem:Function,
+  callDeleteItem: Function;
   onSubmit: () => void;
 }
 
-const ToDoItem = ({todo, onSubmit,callDeleteItem}: ToDoItemProps) => {
+const ToDoItem = ({todo, onSubmit, callDeleteItem}: ToDoItemProps) => {
   const [isChecked, setIsChecked] = useState(false);
   const [content, setContent] = useState('');
 
   const [updateItem] = useMutation(UPDATE_TODO);
   const input = useRef(null);
 
-  const callUpdateItem = () => {
-    updateItem({
+  const callUpdateItem = async () => {
+    await updateItem({
       variables: {
         id: todo.id,
         content,
@@ -81,7 +81,7 @@ const ToDoItem = ({todo, onSubmit,callDeleteItem}: ToDoItemProps) => {
         <Checkbox
           isChecked={isChecked}
           onPress={() => {
-            setIsChecked(!isChecked);
+            setIsChecked(prev => !prev);
             callUpdateItem();
           }}
         />

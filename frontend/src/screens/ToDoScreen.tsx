@@ -17,7 +17,7 @@ import ToDoItem from '../components/ToDoItem';
 import {Text, View} from '../components/Themed';
 
 const GET_PROJECT = gql`
-  query getTaslist($id: ID!) {
+  query getTasklist($id: ID!) {
     getTaskList(id: $id) {
       id
       title
@@ -76,6 +76,10 @@ export default function ToDoScreen() {
     useMutation(CREATE_TODO, {refetchQueries: GET_PROJECT});
 
   useEffect(() => {
+    refetch();
+  }, []);
+
+  useEffect(() => {
     if (error) {
       // console.log(error);
       Alert.alert('Error fetching project', error.message);
@@ -95,6 +99,8 @@ export default function ToDoScreen() {
         content: '',
         taskListId: id,
       },
+    }).then(() => {
+      refetch();
     });
     // const newTodos = [...todos];
     // newTodos.splice(atIndex, 0, {
