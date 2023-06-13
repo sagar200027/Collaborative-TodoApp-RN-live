@@ -121,7 +121,11 @@ const resolvers = {
       };
       // save to database
       const result = await db.collection("Users").insertOne(newUser);
-      const user = result.ops[0];
+      // const result = await db.collection("Users").insertOne(input);
+      const user = await db
+        .collection("Users")
+        .findOne({ email: input.email });
+        console.log(user);
       return {
         user,
         token: getToken(user),
@@ -133,7 +137,7 @@ const resolvers = {
       const user = await db.collection("Users").findOne({ email: input.email });
       const isPasswordCorrect =
         user && bcrypt.compareSync(input.password, user.password);
-      console.log(user, isPasswordCorrect);
+      console.log('signin',user, isPasswordCorrect);
       if (!user || !isPasswordCorrect) {
         throw new Error("Invalid credentials!");
       }

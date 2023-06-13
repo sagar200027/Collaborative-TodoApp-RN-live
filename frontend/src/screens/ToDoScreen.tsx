@@ -30,6 +30,14 @@ const GET_PROJECT = gql`
     }
   }
 `;
+const UPDATE_PROJECT = gql`
+  mutation updateTasklist($id: ID!, $title: String!) {
+    updateTaskList(id: $id, title: $title) {
+      id
+      title
+    }
+  }
+`;
 
 const CREATE_TODO = gql`
   mutation createToDo($content: String!, $taskListId: ID!) {
@@ -72,6 +80,7 @@ export default function ToDoScreen() {
   const {data, error, refetch, loading} = useQuery(GET_PROJECT, {
     variables: {id},
   });
+  const [UpdateProject] = useMutation(UPDATE_PROJECT);
   const [deleteItem] = useMutation(DELETE_TODO);
   const [createTodo, {data: createTodoData, error: createTodoError}] =
     useMutation(CREATE_TODO, {refetchQueries: GET_PROJECT});
@@ -137,8 +146,24 @@ export default function ToDoScreen() {
   console.log('todos array', project.todos);
 
   const deleteTaskList = async () => {
+    await deleteList();
     navigation.goBack();
-    await deleteTaskList();
+  };
+
+  const callUpdateTitle = () => {
+    UpdateProject({
+      variables: {
+        id: id,
+        title: title,
+      },
+    });
+  };
+
+  const onBackPress = async() => {
+    if(data.getTaskList.title !== title){
+      await callUpdateTitle()
+    }
+    navigation.goBack();
   };
 
   const renderItem = ({item, index}: any) => {
@@ -174,6 +199,7 @@ export default function ToDoScreen() {
               value={title}
               onChangeText={setTitle}
               placeholder={'Title'}
+              onEndEditing={callUpdateTitle}
               style={styles.title}
             />
 
@@ -204,7 +230,7 @@ export default function ToDoScreen() {
     <View style={{flex: 1}}>
       <View style={styles.header}>
         <Pressable
-          onPress={() => navigation.goBack()}
+          onPress={() => onBackPress()}
           style={{
             // backgroundColor: 'green',
             height: 50,
