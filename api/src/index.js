@@ -133,11 +133,11 @@ const resolvers = {
     },
 
     signIn: async (_, { input }, { db }) => {
-      console.log("working");
+      // console.log("working",input.email);
       const user = await db.collection("Users").findOne({ email: input.email });
       const isPasswordCorrect =
         user && bcrypt.compareSync(input.password, user.password);
-      console.log('signin',user, isPasswordCorrect);
+      // console.log('signin',user, isPasswordCorrect);
       if (!user || !isPasswordCorrect) {
         throw new Error("Invalid credentials!");
       }

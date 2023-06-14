@@ -2,10 +2,10 @@ import * as React from 'react';
 import ProjectsScreen from '../screens/ProjectsScreen';
 import ToDoScreen from '../screens/ToDoScreen';
 import {createDrawerNavigator} from '@react-navigation/drawer';
-import {HomeStackParamList} from '../../types';
+import {DrawerParamList, HomeStackParamList} from '../../types';
 import {createStackNavigator} from '@react-navigation/stack';
 const Stack = createStackNavigator<HomeStackParamList>();
-// const Drawer = createDrawerNavigator();
+// const Drawer = createDrawerNavigator<DrawerParamList>();
 
 export const HomeStack = () => {
   return (

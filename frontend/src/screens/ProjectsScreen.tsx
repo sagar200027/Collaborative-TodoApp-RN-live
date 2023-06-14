@@ -4,9 +4,15 @@ import ProjectItem from '../components/ProjectItem';
 import {Text, View} from '../components/Themed';
 import {useQuery, gql, useMutation} from '@apollo/client';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Icon1 from 'react-native-vector-icons/MaterialCommunityIcons';
+import {NavigationActions} from 'react-navigation';
 import {ADD_PROJECT, DELETE_PROJECT, MY_PROJECTS} from '../apis/ProjectsScreen';
+import {CommonActions, useNavigation} from '@react-navigation/native';
+import SplashScreen from './SplashScreen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ProjectsScreen() {
+  const navigation = useNavigation();
   const [project, setProjects] = useState([]);
 
   const {data, error, refetch, loading} = useQuery(MY_PROJECTS, {
@@ -50,6 +56,21 @@ export default function ProjectsScreen() {
     });
   };
 
+  const logout = () => {
+    AsyncStorage.setItem('token', '').then(() => {
+      // redirect home
+      navigation.dispatch(
+        CommonActions.reset({index: 1, routes: [{name: 'Splash'}]}),
+      );
+    });
+    // navigation.reset([NavigationActions.navigate({routeName:'Splash'})]);
+    // const resetAction = NavigationActions.reset({
+    //   index: 1,
+    //   actions: ,
+    // });
+    // navigation.dispatch(resetAction);
+  };
+
   return (
     <View style={styles.container}>
       <View
@@ -61,7 +82,6 @@ export default function ProjectsScreen() {
           width: '100%',
           flexDirection: 'row',
         }}>
-
         <Pressable style={{width: '10%'}}>
           <Icon sty name="menu" size={35} color={'black'} />
         </Pressable>
@@ -69,9 +89,8 @@ export default function ProjectsScreen() {
         <View style={{width: '80%', alignItems: 'center'}}>
           <Text style={{fontSize: 20, fontWeight: '600'}}>Home</Text>
         </View>
-        
-        <View />
 
+        <View />
       </View>
       <FlatList
         data={project}
@@ -85,6 +104,17 @@ export default function ProjectsScreen() {
         }}
         style={{width: '100%'}}
       />
+
+      <Pressable
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        onPress={logout}>
+        <Text style={{color: 'red', fontSize: 17, marginRight: 5}}>Logout</Text>
+        <Icon1 name="logout" size={20} color={'red'} />
+      </Pressable>
       <Pressable
         onPress={() => addTaskList('TASKLIST')}
         style={styles.addTaskButton}>

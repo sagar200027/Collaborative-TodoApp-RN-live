@@ -10,6 +10,10 @@ export type HomeStackParamList = {
   ToDoScreen:undefined
 };
 
+export type DrawerParamList = {
+  ProjectsScreen:undefined
+};
+
 export type OnboardingStackParamList = {
   SignIn:undefined
   SignUp:undefined
