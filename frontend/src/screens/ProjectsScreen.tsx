@@ -55,12 +55,23 @@ export default function ProjectsScreen() {
       <View
         style={{
           height: 50,
-          justifyContent: 'center',
+          // justifyContent: 'space-between',
           // borderBottomWidth: 1,
           alignItems: 'center',
-          width:'100%'
+          width: '100%',
+          flexDirection: 'row',
         }}>
-        <Text style={{fontSize: 20, fontWeight: '600'}}>Home</Text>
+
+        <Pressable style={{width: '10%'}}>
+          <Icon sty name="menu" size={35} color={'black'} />
+        </Pressable>
+
+        <View style={{width: '80%', alignItems: 'center'}}>
+          <Text style={{fontSize: 20, fontWeight: '600'}}>Home</Text>
+        </View>
+        
+        <View />
+
       </View>
       <FlatList
         data={project}

@@ -1,10 +1,18 @@
-export type RootStackParamList = {
+export type MainStackParamList = {
   Splash:undefined
-  Home: undefined;
-  ToDoScreen: undefined;
-  SignIn: undefined;
-  SignUp: undefined;
-  NotFound: undefined;
+  HomeStack:undefined
+  OnboardingStack:undefined
+};
+
+
+export type HomeStackParamList = {
+  Home:undefined
+  ToDoScreen:undefined
+};
+
+export type OnboardingStackParamList = {
+  SignIn:undefined
+  SignUp:undefined
 };
 
 export type BottomTabParamList = {
