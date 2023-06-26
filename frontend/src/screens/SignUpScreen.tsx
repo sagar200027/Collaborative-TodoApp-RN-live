@@ -49,7 +49,7 @@ const SignUpScreen = () => {
       // save token
       AsyncStorage.setItem('token', data.signUp.token).then(() => {
         // redirect home
-        navigation.navigate('Home');
+        navigation.navigate('HomeStack');
       });
     }
   }, [data]);
