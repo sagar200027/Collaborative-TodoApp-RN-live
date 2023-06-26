@@ -11,12 +11,13 @@ const SplashScreen = () => {
     // AsyncStorage.setItem("token", token)
     const checkUser = async () => {
       if (await isAuthenticated()) {
-        navigation.navigate('Home');
+        navigation.navigate('HomeStack');
       } else {
-        navigation.navigate('SignIn');
+        navigation.navigate('OnboardingStack');
       }
     }
-
+    console.log('working splash');
+    
     checkUser();
   }, []);
 

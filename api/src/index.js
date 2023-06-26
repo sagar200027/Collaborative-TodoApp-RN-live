@@ -1,5 +1,5 @@
 import { ApolloServer } from "@apollo/server";
-import { MongoClient, ServerApiVersion } from "mongodb";
+import { MongoClient, ObjectId, ServerApiVersion } from "mongodb";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -21,7 +21,11 @@ const getUserFromToken = async (token, db) => {
   if (!tokenData?.id) {
     return null;
   }
-  return await db.collection("Users").findOne({ _id: ObjectID(tokenData.id) });
+  const temp = await db
+    .collection("Users")
+    .findOne({ _id: ObjectId(tokenData.id) });
+  // console.log('working',temp);
+  return temp;
 };
 
 const typeDefs = `#graphql
@@ -83,10 +87,13 @@ const resolvers = {
         throw new Error("Authentication Error. Please sign in");
       }
 
-      return await db
+      // console.log('db user',user);
+      const arr = await db
         .collection("TaskList")
         .find({ userIds: user._id })
         .toArray();
+      // console.log('array',arr);
+      return arr;
     },
 
     getTaskList: async (_, { id }, { db, user }) => {
@@ -94,7 +101,7 @@ const resolvers = {
         throw new Error("Authentication Error. Please sign in");
       }
 
-      return await db.collection("TaskList").findOne({ _id: ObjectID(id) });
+      return await db.collection("TaskList").findOne({ _id: ObjectId(id) });
     },
   },
   Mutation: {
@@ -102,6 +109,7 @@ const resolvers = {
       const user1 = await db
         .collection("Users")
         .findOne({ email: input.email });
+      // console.log('user', user1);
       if (user1) {
         throw new Error("User already exist!");
       }
@@ -113,7 +121,11 @@ const resolvers = {
       };
       // save to database
       const result = await db.collection("Users").insertOne(newUser);
-      const user = result.ops[0];
+      // const result = await db.collection("Users").insertOne(input);
+      const user = await db
+        .collection("Users")
+        .findOne({ email: input.email });
+        console.log(user);
       return {
         user,
         token: getToken(user),
@@ -121,10 +133,11 @@ const resolvers = {
     },
 
     signIn: async (_, { input }, { db }) => {
+      // console.log("working",input.email);
       const user = await db.collection("Users").findOne({ email: input.email });
       const isPasswordCorrect =
         user && bcrypt.compareSync(input.password, user.password);
-
+      // console.log('signin',user, isPasswordCorrect);
       if (!user || !isPasswordCorrect) {
         throw new Error("Invalid credentials!");
       }
@@ -146,7 +159,17 @@ const resolvers = {
         userIds: [user._id],
       };
       const result = await db.collection("TaskList").insert(newTaskList);
-      return result.ops[0];
+      let newTask = await db
+        .collection("TaskList")
+        .findOne({ _id: result.insertedIds[0] });
+      newTask = {
+        id: newTask._id,
+        title: newTask.title,
+        createdAt: newTask.createdAt,
+        userIds: newTask.userIds,
+      };
+      console.log("result", newTask);
+      return newTask;
     },
 
     updateTaskList: async (_, { id, title }, { db, user }) => {
@@ -156,7 +179,7 @@ const resolvers = {
 
       const result = await db.collection("TaskList").updateOne(
         {
-          _id: ObjectID(id),
+          _id: ObjectId(id),
         },
         {
           $set: {
@@ -165,7 +188,7 @@ const resolvers = {
         }
       );
 
-      return await db.collection("TaskList").findOne({ _id: ObjectID(id) });
+      return await db.collection("TaskList").findOne({ _id: ObjectId(id) });
     },
 
     addUserToTaskList: async (_, { taskListId, userId }, { db, user }) => {
@@ -175,7 +198,7 @@ const resolvers = {
 
       const taskList = await db
         .collection("TaskList")
-        .findOne({ _id: ObjectID(taskListId) });
+        .findOne({ _id: ObjectId(taskListId) });
       if (!taskList) {
         return null;
       }
@@ -186,15 +209,15 @@ const resolvers = {
       }
       await db.collection("TaskList").updateOne(
         {
-          _id: ObjectID(taskListId),
+          _id: ObjectId(taskListId),
         },
         {
           $push: {
-            userIds: ObjectID(userId),
+            userIds: ObjectId(userId),
           },
         }
       );
-      taskList.userIds.push(ObjectID(userId));
+      taskList.userIds.push(ObjectId(userId));
       return taskList;
     },
 
@@ -204,7 +227,7 @@ const resolvers = {
       }
 
       // TODO only collaborators of this task list should be able to delete
-      await db.collection("TaskList").removeOne({ _id: ObjectID(id) });
+      await db.collection("TaskList").deleteOne({ _id: ObjectId(id) });
 
       return true;
     },
@@ -216,11 +239,21 @@ const resolvers = {
       }
       const newToDo = {
         content,
-        taskListId: ObjectID(taskListId),
+        taskListId: ObjectId(taskListId),
         isCompleted: false,
       };
       const result = await db.collection("ToDo").insert(newToDo);
-      return result.ops[0];
+      let todo = await db
+        .collection("ToDo")
+        .findOne({ _id: result.insertedIds[0] });
+      console.log("create todo result", todo);
+      const newTodo = {
+        id: todo._id,
+        content: todo.content,
+        taskListId: todo.taskListId,
+        isCompleted: false,
+      };
+      return newTodo;
     },
 
     updateToDo: async (_, data, { db, user }) => {
@@ -230,14 +263,14 @@ const resolvers = {
 
       const result = await db.collection("ToDo").updateOne(
         {
-          _id: ObjectID(data.id),
+          _id: ObjectId(data.id),
         },
         {
           $set: data,
         }
       );
 
-      return await db.collection("ToDo").findOne({ _id: ObjectID(data.id) });
+      return await db.collection("ToDo").findOne({ _id: ObjectId(data.id) });
     },
 
     deleteToDo: async (_, { id }, { db, user }) => {
@@ -246,7 +279,7 @@ const resolvers = {
       }
 
       // TODO only collaborators of this task list should be able to delete
-      await db.collection("ToDo").removeOne({ _id: ObjectID(id) });
+      await db.collection("ToDo").deleteOne({ _id: ObjectId(id) });
 
       return true;
     },
@@ -261,7 +294,7 @@ const resolvers = {
     progress: async ({ _id }, _, { db }) => {
       const todos = await db
         .collection("ToDo")
-        .find({ taskListId: ObjectID(_id) })
+        .find({ taskListId: ObjectId(_id) })
         .toArray();
       const completed = todos.filter((todo) => todo.isCompleted);
 
@@ -278,14 +311,14 @@ const resolvers = {
     todos: async ({ _id }, _, { db }) =>
       await db
         .collection("ToDo")
-        .find({ taskListId: ObjectID(_id) })
+        .find({ taskListId: ObjectId(_id) })
         .toArray(),
   },
 
   ToDo: {
     id: ({ _id, id }) => _id || id,
     taskList: async ({ taskListId }, _, { db }) =>
-      await db.collection("TaskList").findOne({ _id: ObjectID(taskListId) }),
+      await db.collection("TaskList").findOne({ _id: ObjectId(taskListId) }),
   },
 };
 
@@ -314,6 +347,7 @@ const start = async () => {
     listen: { port: 4000 },
     context: async ({ req }) => {
       const user = await getUserFromToken(req.headers.authorization, db);
+      // console.log('user',user);
       return {
         db,
         user,
