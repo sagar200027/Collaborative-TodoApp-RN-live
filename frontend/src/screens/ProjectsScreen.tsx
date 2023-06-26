@@ -5,10 +5,8 @@ import {Text, View} from '../components/Themed';
 import {useQuery, gql, useMutation} from '@apollo/client';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Icon1 from 'react-native-vector-icons/MaterialCommunityIcons';
-import {NavigationActions} from 'react-navigation';
 import {ADD_PROJECT, DELETE_PROJECT, MY_PROJECTS} from '../apis/ProjectsScreen';
 import {CommonActions, useNavigation} from '@react-navigation/native';
-import SplashScreen from './SplashScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ProjectsScreen() {
